@@ -5,9 +5,38 @@ from flask_restx import Resource, Namespace
 
 from app import config
 
-from app.utills.parsers import category_parser
+from app.utills.paginations import Pagination
+from app.utills.parsers import page_parser, category_parser
 
 Person = Namespace("Person")
+
+
+@Person.route("/")
+class PersonList(Pagination, Resource):
+    def get(self):
+
+        """Page별 환자의 리스트를 조회한다."""
+
+        limit = self.page_size
+        offset = page_parser.parse_args()["page"] * limit
+
+        query = f"SELECT * FROM person ORDER BY person_id OFFSET {offset} LIMIT {limit}"
+
+        db = psycopg2.connect(
+            dbname=config["db"]["database"],
+            user=config["db"]["username"],
+            password=config["db"]["password"],
+            host=config["db"]["host"],
+            port=config["db"]["port"],
+        )
+
+        cursor = db.cursor()
+        cursor.execute(query)
+        persons = cursor.fetchall()
+        cursor.close()
+
+        persons = json.dumps(persons, default=str)
+        return persons
 
 
 @Person.route("/stats")

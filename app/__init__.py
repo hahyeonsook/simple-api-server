@@ -26,9 +26,15 @@ app = Flask(__name__)
 api = Api(app, version="1.0", title="Healthcare API", description="A simple API")
 
 
+from app.concept import Concept
+from app.condition import Condition
+from app.drug import Drug
 from app.person import Person
 from app.visit import Visit
 
 
+api.add_namespace(Concept, "/concept")
+api.add_namespace(Condition, "/condition")
+api.add_namespace(Drug, "/drug")
 api.add_namespace(Person, "/person")
 api.add_namespace(Visit, "/visit")
